@@ -1,7 +1,7 @@
 ARG RUBY_VERSION=3.1
 ARG GEM_VERSION=
 
-FROM ruby:${RUBY_VERSION}-slim
+FROM ruby:${RUBY_VERSION}-alpine
 
 RUN gem install --no-doc --version=${GEM_VERSION} prometheus_exporter
 

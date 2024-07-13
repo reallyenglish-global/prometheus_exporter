@@ -13,60 +13,10 @@ permissions:
   packages: write
 
 env:
-  DOCKER_REPO: ghcr.io/discourse/prometheus_exporter
+  DOCKER_REPO: ghcr.io/reallyenglish-global/prometheus_exporter
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }} AR ${{ matrix.activerecord }}
-    timeout-minutes: 10
-
-    env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/ar_${{ matrix.activerecord }}.gemfile
-
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby: ['3.1', '3.2', '3.3']
-        activerecord: [61, 70, 71]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler: latest
-          bundler-cache: true
-
-      - name: Rubocop
-        run: bundle exec rubocop
-
-      - name: Run tests
-        run: bundle exec rake
-
-  publish:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-
-    outputs:
-      new_version_published: ${{ steps.release.outputs.new_version }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Release gem
-        id: release
-        uses: discourse/publish-rubygems-action@v2
-        env:
-          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-          GIT_EMAIL: team@discourse.org
-          GIT_NAME: discoursebot
-
   publish_docker:
-    needs: publish
-    if: needs.publish.outputs.new_version_published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
